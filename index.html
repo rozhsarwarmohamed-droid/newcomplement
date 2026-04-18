@@ -1,0 +1,1792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>🔬 Whimsical Math Lab — Complements</title>
+<style>
+/* ============================================================
+   CSS VARIABLES & RESET
+   ============================================================ */
+:root {
+  --cream:    #FFF8EE;
+  --blue:     #4A90D9;
+  --blue-lt:  #D6EAFF;
+  --blue-dk:  #2C6FAC;
+  --yellow:   #FFD166;
+  --yellow-lt:#FFF3CC;
+  --orange:   #FF8C42;
+  --orange-lt:#FFE4CC;
+  --green:    #52B788;
+  --green-lt: #CCEEDD;
+  --red:      #EF476F;
+  --red-lt:   #FFD6E0;
+  --ink:      #2D2D2D;
+  --ink-lt:   #666666;
+  --white:    #FFFFFF;
+  --shadow:   rgba(45,45,45,0.15);
+  --nav-h:    80px;
+  --radius:   18px;
+  --font-head: Georgia, 'Times New Roman', serif;
+  --font-body: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+html { font-size: 18px; }
+body {
+  background: var(--cream);
+  font-family: var(--font-body);
+  color: var(--ink);
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ============================================================
+   HEADER BAR
+   ============================================================ */
+#header {
+  background: linear-gradient(135deg, var(--blue-dk), var(--blue));
+  color: var(--white);
+  padding: 0 20px;
+  height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  box-shadow: 0 3px 12px var(--shadow);
+  z-index: 100;
+}
+#header .logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-head);
+  font-size: 1.2rem;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+}
+#header .logo .flask { font-size: 1.5rem; }
+#slide-indicator {
+  background: rgba(255,255,255,0.25);
+  border-radius: 20px;
+  padding: 4px 16px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+#glossary-btn {
+  background: var(--yellow);
+  color: var(--ink);
+  border: none;
+  border-radius: 12px;
+  padding: 8px 16px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  transition: transform 0.1s, box-shadow 0.1s;
+  touch-action: manipulation;
+}
+#glossary-btn:active { transform: scale(0.95); }
+
+/* ============================================================
+   MAIN SCROLLABLE CONTENT AREA
+   ============================================================ */
+#content-area {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  padding: 20px 20px 100px;
+}
+
+/* ============================================================
+   SLIDES
+   ============================================================ */
+.slide { display: none; animation: fadeIn 0.4s ease; }
+.slide.active { display: block; }
+@keyframes fadeIn { from { opacity:0; transform: translateY(12px); } to { opacity:1; transform: translateY(0); } }
+
+/* Slide titles */
+.slide-title {
+  font-family: var(--font-head);
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  color: var(--blue-dk);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.slide-subtitle {
+  color: var(--ink-lt);
+  font-size: 0.9rem;
+  margin-bottom: 22px;
+  padding-left: 4px;
+}
+
+/* Professor speech bubble */
+.prof-bubble {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  background: var(--yellow-lt);
+  border: 3px solid var(--yellow);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 22px;
+  position: relative;
+}
+.prof-avatar {
+  width: 70px;
+  height: 70px;
+  flex-shrink: 0;
+}
+.prof-bubble p {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--ink);
+}
+.prof-bubble strong { color: var(--blue-dk); }
+
+/* ============================================================
+   STICKY BOTTOM NAV
+   ============================================================ */
+#nav-bar {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: var(--nav-h);
+  background: linear-gradient(135deg, #2C3E6E, var(--blue-dk));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  gap: 10px;
+  box-shadow: 0 -4px 16px var(--shadow);
+  z-index: 999;
+}
+.nav-btn {
+  flex: 1;
+  max-width: 160px;
+  height: 60px;
+  border: none;
+  border-radius: 14px;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: transform 0.1s, opacity 0.2s;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.nav-btn:active { transform: scale(0.93); }
+.nav-btn:disabled { opacity: 0.35; pointer-events: none; }
+#btn-home    { background: var(--yellow); color: var(--ink); }
+#btn-prev    { background: rgba(255,255,255,0.18); color: var(--white); border: 2px solid rgba(255,255,255,0.35); }
+#btn-next    { background: var(--orange); color: var(--white); }
+#btn-reset   { background: var(--red); color: var(--white); flex: 0.8; max-width: 130px; font-size: 0.85rem; }
+
+/* ============================================================
+   CARD COMPONENT
+   ============================================================ */
+.card {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 22px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 18px var(--shadow);
+  border: 2px solid transparent;
+}
+.card.blue  { border-color: var(--blue-lt); }
+.card.yellow{ border-color: var(--yellow); }
+.card.orange{ border-color: var(--orange-lt); }
+.card.green { border-color: var(--green-lt); }
+
+/* ============================================================
+   SLIDE 1 — 100-SQUARE GRID
+   ============================================================ */
+#grid-counter {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+.counter-pill {
+  padding: 10px 24px;
+  border-radius: 30px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.counter-pill.filled  { background: var(--blue); color: var(--white); }
+.counter-pill.remain  { background: var(--orange); color: var(--white); }
+.counter-pill.total   { background: var(--green-lt); color: var(--green); border: 2px solid var(--green); }
+
+#grid-complement-display {
+  text-align: center;
+  font-size: 1.4rem;
+  font-weight: bold;
+  margin-bottom: 16px;
+  color: var(--blue-dk);
+  min-height: 2rem;
+  transition: all 0.3s;
+}
+
+#hundred-grid {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 3px;
+  max-width: 520px;
+  margin: 0 auto 18px;
+  touch-action: none;
+}
+.grid-cell {
+  aspect-ratio: 1;
+  border-radius: 6px;
+  background: var(--blue-lt);
+  border: 1px solid rgba(74,144,217,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(0.55rem, 1.5vw, 0.75rem);
+  font-weight: bold;
+  color: var(--blue-dk);
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.grid-cell:active { transform: scale(0.88); }
+.grid-cell.filled {
+  background: var(--blue);
+  color: var(--white);
+  border-color: var(--blue-dk);
+}
+.grid-cell.filled-orange {
+  background: var(--orange);
+  color: var(--white);
+  border-color: #cc6600;
+}
+
+#grid-instructions {
+  text-align: center;
+  color: var(--ink-lt);
+  font-size: 0.9rem;
+  margin-top: 8px;
+}
+
+/* ============================================================
+   SLIDE 2 — MAGIC MIRROR (Scaling Up)
+   ============================================================ */
+.mirror-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+.mirror-equation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.eq-box {
+  background: var(--blue-lt);
+  border: 3px solid var(--blue);
+  border-radius: 14px;
+  padding: 14px 20px;
+  min-width: 90px;
+  text-align: center;
+  transition: all 0.4s ease;
+}
+.eq-box .num {
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  font-weight: bold;
+  font-family: var(--font-head);
+  color: var(--blue-dk);
+  line-height: 1.1;
+  transition: all 0.4s ease;
+}
+.eq-box .label {
+  font-size: 0.7rem;
+  color: var(--ink-lt);
+  margin-top: 4px;
+}
+.eq-op {
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--orange);
+}
+.eq-equals {
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--green);
+}
+.eq-result-box {
+  background: var(--green-lt);
+  border: 3px solid var(--green);
+}
+.eq-result-box .num { color: var(--green); }
+
+.mirror-arrow {
+  font-size: 2.5rem;
+  color: var(--orange);
+  animation: bounce 1.5s infinite;
+}
+@keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+
+.slider-section {
+  width: 100%;
+  max-width: 480px;
+  padding: 20px;
+  background: var(--yellow-lt);
+  border-radius: var(--radius);
+  border: 2px solid var(--yellow);
+  text-align: center;
+}
+.slider-section label {
+  display: block;
+  font-size: 1rem;
+  font-weight: bold;
+  color: var(--ink);
+  margin-bottom: 12px;
+}
+#power-slider {
+  width: 100%;
+  height: 48px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: linear-gradient(to right, var(--blue) 0%, var(--orange) 100%);
+  border-radius: 24px;
+  outline: none;
+  cursor: pointer;
+  touch-action: none;
+}
+#power-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--white);
+  border: 4px solid var(--orange);
+  box-shadow: 0 3px 10px var(--shadow);
+  cursor: pointer;
+}
+#power-slider::-moz-range-thumb {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--white);
+  border: 4px solid var(--orange);
+  cursor: pointer;
+}
+.slider-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: var(--ink-lt);
+  margin-top: 6px;
+  padding: 0 4px;
+}
+#multiplier-badge {
+  display: inline-block;
+  background: var(--orange);
+  color: var(--white);
+  padding: 6px 20px;
+  border-radius: 20px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin-top: 10px;
+  transition: all 0.3s;
+}
+.mirror-rule-box {
+  background: var(--orange-lt);
+  border: 2px solid var(--orange);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  max-width: 480px;
+  text-align: center;
+}
+.mirror-rule-box p { font-size: 0.95rem; color: var(--ink); line-height: 1.6; }
+.mirror-rule-box strong { color: var(--orange); font-size: 1.05rem; }
+
+/* ============================================================
+   SLIDE 3 — FAST MATH GAME
+   ============================================================ */
+.game-area {
+  max-width: 540px;
+  margin: 0 auto;
+}
+#game-score-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+  gap: 12px;
+}
+.score-pill {
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 0.95rem;
+}
+.score-pill.correct { background: var(--green-lt); color: var(--green); border: 2px solid var(--green); }
+.score-pill.wrong   { background: var(--red-lt); color: var(--red); border: 2px solid var(--red); }
+.score-pill.qnum    { background: var(--blue-lt); color: var(--blue-dk); border: 2px solid var(--blue); }
+
+#timer-bar-wrap {
+  background: #eee;
+  border-radius: 20px;
+  height: 18px;
+  overflow: hidden;
+  margin-bottom: 18px;
+  border: 2px solid #ddd;
+}
+#timer-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--green), var(--yellow), var(--red));
+  border-radius: 20px;
+  transition: width 0.5s linear;
+  width: 100%;
+}
+
+#question-display {
+  text-align: center;
+  background: var(--blue-dk);
+  color: var(--white);
+  border-radius: var(--radius);
+  padding: 26px;
+  margin-bottom: 22px;
+}
+#question-display .q-icon { font-size: 2rem; margin-bottom: 8px; }
+#question-display .q-text {
+  font-family: var(--font-head);
+  font-size: clamp(1.8rem, 5vw, 3rem);
+  font-weight: bold;
+  letter-spacing: 2px;
+}
+#question-display .q-hint {
+  font-size: 0.85rem;
+  opacity: 0.75;
+  margin-top: 8px;
+}
+
+#estimate-options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 18px;
+}
+.estimate-btn {
+  min-height: 80px;
+  border: 3px solid transparent;
+  border-radius: var(--radius);
+  background: var(--blue-lt);
+  color: var(--blue-dk);
+  font-size: 1.5rem;
+  font-weight: bold;
+  font-family: var(--font-head);
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  gap: 4px;
+}
+.estimate-btn .bubble-label { font-size: 0.65rem; font-family: var(--font-body); font-weight: normal; color: var(--ink-lt); }
+.estimate-btn:active { transform: scale(0.94); }
+.estimate-btn.correct-ans  { background: var(--green-lt); border-color: var(--green); color: var(--green); animation: popIn 0.3s; }
+.estimate-btn.wrong-ans    { background: var(--red-lt); border-color: var(--red); color: var(--red); }
+.estimate-btn.reveal-ans   { background: var(--green-lt); border-color: var(--green); color: var(--green); }
+.estimate-btn:disabled { pointer-events: none; }
+@keyframes popIn { 0% { transform: scale(0.8); } 60% { transform: scale(1.1); } 100% { transform: scale(1); } }
+
+#game-feedback {
+  min-height: 56px;
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: bold;
+  padding: 12px;
+  border-radius: 14px;
+  margin-bottom: 14px;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+#game-feedback.show-correct { background: var(--green-lt); color: var(--green); }
+#game-feedback.show-wrong   { background: var(--red-lt); color: var(--red); }
+#game-feedback.show-time    { background: var(--yellow-lt); color: var(--orange); }
+
+#next-question-btn {
+  display: none;
+  width: 100%;
+  height: 64px;
+  background: var(--orange);
+  color: var(--white);
+  border: none;
+  border-radius: 14px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: transform 0.1s;
+}
+#next-question-btn:active { transform: scale(0.96); }
+
+#game-complete {
+  display: none;
+  text-align: center;
+  padding: 30px;
+  background: var(--yellow-lt);
+  border: 3px solid var(--yellow);
+  border-radius: var(--radius);
+}
+#game-complete h3 { font-size: 1.8rem; color: var(--blue-dk); margin-bottom: 10px; }
+#game-complete p  { font-size: 1rem; color: var(--ink); margin-bottom: 16px; }
+#game-complete .stars { font-size: 2.5rem; }
+#restart-game-btn {
+  background: var(--blue);
+  color: var(--white);
+  border: none;
+  border-radius: 14px;
+  padding: 14px 32px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: transform 0.1s;
+}
+#restart-game-btn:active { transform: scale(0.96); }
+
+/* ============================================================
+   SLIDE 4 — MATHEMATICIAN'S DEBATE
+   ============================================================ */
+.debate-header {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.character-card {
+  flex: 1;
+  min-width: 220px;
+  padding: 16px;
+  border-radius: var(--radius);
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+.character-card.arun  { background: var(--blue-lt); border: 2px solid var(--blue); }
+.character-card.sofia { background: var(--orange-lt); border: 2px solid var(--orange); }
+.char-avatar { font-size: 2.8rem; }
+.char-name   { font-weight: bold; font-size: 1rem; margin-bottom: 4px; }
+.arun  .char-name { color: var(--blue-dk); }
+.sofia .char-name { color: var(--orange); }
+.char-quote  { font-size: 0.88rem; color: var(--ink); line-height: 1.5; }
+
+.pairs-challenge {
+  background: var(--blue-dk);
+  color: var(--white);
+  border-radius: var(--radius);
+  padding: 18px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+.pairs-challenge h3 { font-size: 1.1rem; margin-bottom: 6px; opacity: 0.85; }
+.pairs-challenge .total-num { font-size: 3rem; font-family: var(--font-head); font-weight: bold; color: var(--yellow); }
+.pairs-challenge p  { font-size: 0.85rem; opacity: 0.75; margin-top: 4px; }
+
+#pairs-controls {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+.pairs-filter-btn {
+  padding: 10px 20px;
+  border-radius: 30px;
+  border: 2px solid var(--blue);
+  background: var(--white);
+  color: var(--blue-dk);
+  font-weight: bold;
+  font-size: 0.9rem;
+  cursor: pointer;
+  touch-action: manipulation;
+  min-height: 48px;
+  transition: all 0.2s;
+}
+.pairs-filter-btn.active, .pairs-filter-btn:active {
+  background: var(--blue);
+  color: var(--white);
+}
+
+#pairs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.pair-card {
+  background: var(--blue-lt);
+  border: 2px solid rgba(74,144,217,0.4);
+  border-radius: 14px;
+  padding: 14px 10px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.25s;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+  overflow: hidden;
+}
+.pair-card .pair-front {
+  font-size: 0.85rem;
+  color: var(--blue-dk);
+  font-weight: bold;
+}
+.pair-card .pair-equation {
+  font-size: 1.05rem;
+  font-family: var(--font-head);
+  font-weight: bold;
+  color: var(--blue-dk);
+  margin: 4px 0;
+  transition: all 0.3s;
+}
+.pair-card .pair-tap { font-size: 0.7rem; color: var(--ink-lt); }
+.pair-card.revealed {
+  background: var(--green-lt);
+  border-color: var(--green);
+}
+.pair-card.revealed .pair-equation { color: var(--green); }
+.pair-card.revealed .pair-tap { color: var(--green); }
+.pair-card:hover { transform: translateY(-2px); box-shadow: 0 6px 18px var(--shadow); }
+
+#pairs-summary {
+  background: var(--yellow-lt);
+  border: 2px solid var(--yellow);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  text-align: center;
+}
+#pairs-summary h4 { color: var(--blue-dk); font-size: 1.1rem; margin-bottom: 8px; }
+#pairs-summary p  { font-size: 0.9rem; color: var(--ink); line-height: 1.6; }
+#reveal-count {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: var(--orange);
+  display: block;
+  margin-bottom: 4px;
+}
+
+/* ============================================================
+   GLOSSARY MODAL
+   ============================================================ */
+#glossary-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(44,63,110,0.75);
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+#glossary-overlay.open { display: flex; }
+#glossary-modal {
+  background: var(--white);
+  border-radius: 24px;
+  max-width: 560px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  animation: modalIn 0.3s ease;
+}
+@keyframes modalIn { from { transform: scale(0.85) translateY(20px); opacity:0; } to { transform: scale(1) translateY(0); opacity:1; } }
+.modal-header {
+  background: linear-gradient(135deg, var(--blue-dk), var(--blue));
+  color: var(--white);
+  padding: 20px 24px;
+  border-radius: 24px 24px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.modal-header h2 { font-family: var(--font-head); font-size: 1.4rem; }
+#close-glossary {
+  width: 44px; height: 44px;
+  background: rgba(255,255,255,0.25);
+  border: none;
+  border-radius: 50%;
+  color: var(--white);
+  font-size: 1.4rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: manipulation;
+}
+.glossary-body { padding: 20px 24px; }
+.glossary-entry {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  padding: 16px;
+  border-radius: 14px;
+  margin-bottom: 14px;
+  background: var(--cream);
+  border: 2px solid #e8e4dc;
+}
+.glos-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.4rem;
+  flex-shrink: 0;
+}
+.glos-icon.blue   { background: var(--blue-lt); }
+.glos-icon.yellow { background: var(--yellow-lt); }
+.glos-icon.orange { background: var(--orange-lt); }
+.glos-icon.green  { background: var(--green-lt); }
+.glos-content h3  { font-size: 1.1rem; color: var(--blue-dk); margin-bottom: 4px; }
+.glos-content p   { font-size: 0.88rem; color: var(--ink); line-height: 1.55; }
+.glos-example     { margin-top: 6px; font-weight: bold; color: var(--orange); font-size: 0.95rem; }
+
+/* ============================================================
+   PROFESSOR SVG
+   ============================================================ */
+.prof-svg { width:70px; height:70px; }
+
+/* ============================================================
+   HOME SCREEN (Slide 0)
+   ============================================================ */
+#slide-home .home-hero {
+  text-align: center;
+  padding: 20px 10px 30px;
+}
+#slide-home .big-title {
+  font-family: var(--font-head);
+  font-size: clamp(1.8rem, 5vw, 3rem);
+  color: var(--blue-dk);
+  margin-bottom: 8px;
+  line-height: 1.2;
+}
+#slide-home .sub-title {
+  font-size: 1rem;
+  color: var(--ink-lt);
+  margin-bottom: 30px;
+}
+.home-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.home-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: 0 4px 18px var(--shadow);
+  cursor: pointer;
+  transition: all 0.2s;
+  touch-action: manipulation;
+  border: 3px solid transparent;
+  text-align: center;
+}
+.home-card:hover  { transform: translateY(-4px); box-shadow: 0 8px 28px var(--shadow); }
+.home-card:active { transform: scale(0.97); }
+.home-card.blue   { border-color: var(--blue); }
+.home-card.yellow { border-color: var(--yellow); }
+.home-card.orange { border-color: var(--orange); }
+.home-card.green  { border-color: var(--green); }
+.home-card .hc-icon  { font-size: 2.8rem; margin-bottom: 10px; }
+.home-card .hc-num   { font-size: 0.75rem; color: var(--ink-lt); margin-bottom: 4px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; }
+.home-card .hc-title { font-size: 1rem; font-weight: bold; color: var(--ink); margin-bottom: 6px; }
+.home-card .hc-desc  { font-size: 0.8rem; color: var(--ink-lt); line-height: 1.4; }
+
+/* Unit info banner */
+.unit-banner {
+  background: linear-gradient(135deg, var(--blue-dk), var(--blue));
+  color: var(--white);
+  border-radius: var(--radius);
+  padding: 18px 22px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.unit-banner .unit-icon { font-size: 2.5rem; }
+.unit-banner h3 { font-size: 1.05rem; margin-bottom: 4px; }
+.unit-banner p  { font-size: 0.82rem; opacity: 0.85; }
+
+/* Misc utility */
+.text-center { text-align: center; }
+.mt-16 { margin-top: 16px; }
+.divider { height: 2px; background: linear-gradient(90deg, transparent, var(--blue-lt), transparent); margin: 20px 0; border-radius: 2px; }
+.tag {
+  display: inline-block;
+  background: var(--blue-lt);
+  color: var(--blue-dk);
+  border-radius: 8px;
+  padding: 2px 10px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  margin-right: 6px;
+}
+.tag.orange { background: var(--orange-lt); color: var(--orange); }
+.tag.green  { background: var(--green-lt); color: var(--green); }
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     HEADER
+     ============================================================ -->
+<div id="header">
+  <div class="logo">
+    <span class="flask">🔬</span>
+    <span>Whimsical Math Lab</span>
+  </div>
+  <div id="slide-indicator">HOME</div>
+  <button id="glossary-btn" onclick="openGlossary()">📖 Words</button>
+</div>
+
+<!-- ============================================================
+     MAIN CONTENT AREA (scrollable)
+     ============================================================ -->
+<div id="content-area">
+
+  <!-- ============================================================
+       HOME SLIDE
+       ============================================================ -->
+  <div class="slide active" id="slide-home">
+    <div class="home-hero">
+      <!-- Professor SVG -->
+      <svg width="120" height="140" viewBox="0 0 120 140" xmlns="http://www.w3.org/2000/svg" style="margin:0 auto 16px;display:block;">
+        <!-- Lab coat body -->
+        <rect x="20" y="75" width="80" height="60" rx="12" fill="#EEF6FF" stroke="#4A90D9" stroke-width="2.5"/>
+        <!-- Coat lapels -->
+        <polygon points="60,80 42,95 48,75" fill="white" stroke="#4A90D9" stroke-width="1.5"/>
+        <polygon points="60,80 78,95 72,75" fill="white" stroke="#4A90D9" stroke-width="1.5"/>
+        <!-- Pocket -->
+        <rect x="70" y="90" width="20" height="18" rx="4" fill="white" stroke="#4A90D9" stroke-width="1.5"/>
+        <!-- Pencil in pocket -->
+        <rect x="75" y="84" width="5" height="18" rx="2" fill="#FFD166" stroke="#cc9900" stroke-width="1"/>
+        <!-- Tie -->
+        <polygon points="60,80 56,110 64,110" fill="#FF8C42"/>
+        <!-- Head -->
+        <ellipse cx="60" cy="55" rx="28" ry="30" fill="#FDEBD0" stroke="#e0b080" stroke-width="2"/>
+        <!-- White hair puffs -->
+        <circle cx="34" cy="40" r="14" fill="white" stroke="#ddd" stroke-width="1.5"/>
+        <circle cx="42" cy="30" r="12" fill="white" stroke="#ddd" stroke-width="1.5"/>
+        <circle cx="54" cy="26" r="12" fill="white" stroke="#ddd" stroke-width="1.5"/>
+        <circle cx="66" cy="26" r="12" fill="white" stroke="#ddd" stroke-width="1.5"/>
+        <circle cx="78" cy="30" r="12" fill="white" stroke="#ddd" stroke-width="1.5"/>
+        <circle cx="86" cy="40" r="14" fill="white" stroke="#ddd" stroke-width="1.5"/>
+        <!-- Glasses frame -->
+        <circle cx="50" cy="56" r="10" fill="none" stroke="#4A90D9" stroke-width="3"/>
+        <circle cx="70" cy="56" r="10" fill="none" stroke="#4A90D9" stroke-width="3"/>
+        <!-- Glass lenses tint -->
+        <circle cx="50" cy="56" r="9" fill="rgba(210,235,255,0.5)"/>
+        <circle cx="70" cy="56" r="9" fill="rgba(210,235,255,0.5)"/>
+        <!-- Glasses bridge & temples -->
+        <line x1="60" y1="56" x2="60" y2="56" stroke="#4A90D9" stroke-width="3"/>
+        <path d="M60 56 L60 56" stroke="#4A90D9" stroke-width="3"/>
+        <line x1="60" y1="57" x2="60" y2="57" stroke="transparent"/>
+        <rect x="59" y="55" width="2" height="3" fill="#4A90D9"/>
+        <!-- Eyes behind glasses -->
+        <circle cx="50" cy="56" r="4" fill="#3a5a8a"/>
+        <circle cx="70" cy="56" r="4" fill="#3a5a8a"/>
+        <circle cx="52" cy="54" r="1.5" fill="white"/>
+        <circle cx="72" cy="54" r="1.5" fill="white"/>
+        <!-- Eyebrows (bushy white) -->
+        <path d="M40 46 Q50 42 60 45" stroke="white" stroke-width="4" fill="none" stroke-linecap="round"/>
+        <path d="M60 45 Q70 42 80 46" stroke="white" stroke-width="4" fill="none" stroke-linecap="round"/>
+        <!-- Nose -->
+        <path d="M60 60 Q56 68 60 70 Q64 68 60 60" fill="#e8a070" stroke="none"/>
+        <!-- Smile -->
+        <path d="M50 76 Q60 83 70 76" stroke="#c0704a" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <!-- Moustache -->
+        <path d="M48 73 Q56 77 60 74 Q64 77 72 73" stroke="#ccc" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+        <!-- Arms -->
+        <rect x="0" y="78" width="22" height="12" rx="6" fill="#EEF6FF" stroke="#4A90D9" stroke-width="2"/>
+        <rect x="98" y="78" width="22" height="12" rx="6" fill="#EEF6FF" stroke="#4A90D9" stroke-width="2"/>
+        <!-- Hands -->
+        <circle cx="8" cy="90" r="8" fill="#FDEBD0" stroke="#e0b080" stroke-width="1.5"/>
+        <circle cx="112" cy="90" r="8" fill="#FDEBD0" stroke="#e0b080" stroke-width="1.5"/>
+        <!-- Beaker in right hand -->
+        <rect x="106" y="95" width="12" height="18" rx="3" fill="rgba(74,144,217,0.3)" stroke="#4A90D9" stroke-width="1.5"/>
+        <rect x="104" y="93" width="16" height="4" rx="2" fill="#4A90D9"/>
+        <!-- Bubbles from beaker -->
+        <circle cx="110" cy="88" r="2" fill="rgba(74,144,217,0.5)"/>
+        <circle cx="115" cy="82" r="1.5" fill="rgba(74,144,217,0.4)"/>
+        <circle cx="108" cy="78" r="1" fill="rgba(74,144,217,0.3)"/>
+      </svg>
+
+      <div class="big-title">🔬 Unit 9.3: Complements</div>
+      <div class="sub-title">Cambridge Primary Mathematics · Grade 3 · Pages 144–148</div>
+    </div>
+
+    <div class="unit-banner">
+      <span class="unit-icon">🧮</span>
+      <div>
+        <h3>What are Complements?</h3>
+        <p>A <strong>complement</strong> is the number you ADD to reach a total. If you have 35 and the total is 100, the complement is 65!</p>
+      </div>
+    </div>
+
+    <div class="home-cards">
+      <div class="home-card blue" onclick="goToSlide(1)">
+        <div class="hc-icon">🟦</div>
+        <div class="hc-num">Activity 1</div>
+        <div class="hc-title">100-Square Challenge</div>
+        <div class="hc-desc">Touch squares on the 100-grid. See how many are filled and how many are left!</div>
+      </div>
+      <div class="home-card yellow" onclick="goToSlide(2)">
+        <div class="hc-icon">🪄</div>
+        <div class="hc-num">Activity 2</div>
+        <div class="hc-title">Magic Mirror</div>
+        <div class="hc-desc">Use the Power Slider to make numbers 10× bigger! Watch complements scale up.</div>
+      </div>
+      <div class="home-card orange" onclick="goToSlide(3)">
+        <div class="hc-icon">⚡</div>
+        <div class="hc-num">Activity 3</div>
+        <div class="hc-title">Fast-Math Game</div>
+        <div class="hc-desc">Can you estimate quickly? Tap the best answer before time runs out!</div>
+      </div>
+      <div class="home-card green" onclick="goToSlide(4)">
+        <div class="hc-icon">🤔</div>
+        <div class="hc-num">Activity 4</div>
+        <div class="hc-title">Mathematician's Debate</div>
+        <div class="hc-desc">Arun and Sofia disagree. Tap the pairs to discover who is right!</div>
+      </div>
+    </div>
+    <p class="text-center" style="color:var(--ink-lt);font-size:0.85rem;padding-bottom:10px;">
+      👆 Tap any activity card to jump straight there • Use ❮ ❯ buttons below to move through activities in order
+    </p>
+  </div><!-- /slide-home -->
+
+  <!-- ============================================================
+       SLIDE 1 — 100-SQUARE CHALLENGE
+       ============================================================ -->
+  <div class="slide" id="slide-1">
+    <div class="slide-title">🟦 The 100-Square Challenge</div>
+    <div class="slide-subtitle">📖 Learner's Book p. 145 · Complements of 100</div>
+
+    <div class="prof-bubble">
+      <svg class="prof-svg" viewBox="0 0 70 70" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="35" cy="35" rx="25" ry="25" fill="#FDEBD0" stroke="#e0b080" stroke-width="2"/>
+        <circle cx="20" cy="22" r="12" fill="white" stroke="#eee" stroke-width="1"/>
+        <circle cx="35" cy="17" r="11" fill="white" stroke="#eee" stroke-width="1"/>
+        <circle cx="50" cy="22" r="12" fill="white" stroke="#eee" stroke-width="1"/>
+        <circle cx="24" cy="34" r="8" fill="none" stroke="#4A90D9" stroke-width="2.5"/>
+        <circle cx="46" cy="34" r="8" fill="none" stroke="#4A90D9" stroke-width="2.5"/>
+        <circle cx="24" cy="34" r="7" fill="rgba(210,235,255,0.5)"/>
+        <circle cx="46" cy="34" r="7" fill="rgba(210,235,255,0.5)"/>
+        <circle cx="24" cy="34" r="3" fill="#3a5a8a"/>
+        <circle cx="46" cy="34" r="3" fill="#3a5a8a"/>
+        <path d="M25 47 Q35 54 45 47" stroke="#c0704a" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <path d="M22 42 Q27 45 30 42" stroke="#ccc" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <path d="M40 42 Q43 45 48 42" stroke="#ccc" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      </svg>
+      <p>
+        Touch a square to <strong>fill it in</strong> 🟦. See the numbers change!<br>
+        <strong>Filled + Remaining = 100</strong> — that's a <strong>complement!</strong><br>
+        <em>Try to fill exactly 35 squares and see what the complement is.</em>
+      </p>
+    </div>
+
+    <div id="grid-counter">
+      <div class="counter-pill filled">🟦 Filled: <span id="filled-count">0</span></div>
+      <div class="counter-pill remain">⬜ Remaining: <span id="remain-count">100</span></div>
+      <div class="counter-pill total">= Total: 100</div>
+    </div>
+
+    <div id="grid-complement-display"></div>
+
+    <div class="card blue" style="padding:14px;">
+      <div id="hundred-grid" id="hundred-grid"></div>
+      <div id="grid-instructions">👆 Tap / touch any square to fill it • Tap again to clear it</div>
+    </div>
+
+    <div class="card yellow" style="text-align:center;padding:18px;">
+      <p style="font-size:0.9rem;margin-bottom:10px;">⚡ <strong>Quick-fill Challenge</strong> — try these amounts:</p>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+        <button class="estimate-btn" style="min-height:60px;font-size:1rem;" onclick="fillExact(25)">Fill 25</button>
+        <button class="estimate-btn" style="min-height:60px;font-size:1rem;" onclick="fillExact(35)">Fill 35</button>
+        <button class="estimate-btn" style="min-height:60px;font-size:1rem;" onclick="fillExact(50)">Fill 50</button>
+        <button class="estimate-btn" style="min-height:60px;font-size:1rem;" onclick="fillExact(72)">Fill 72</button>
+        <button class="estimate-btn" style="min-height:60px;font-size:1rem;background:var(--orange-lt);color:var(--orange);" onclick="clearGrid()">🗑 Clear</button>
+      </div>
+    </div>
+  </div><!-- /slide-1 -->
+
+  <!-- ============================================================
+       SLIDE 2 — MAGIC MIRROR (Scaling Up)
+       ============================================================ -->
+  <div class="slide" id="slide-2">
+    <div class="slide-title">🪄 The Magic Mirror</div>
+    <div class="slide-subtitle">📖 Learner's Book p. 146–147 · Scaling Complements by 10</div>
+
+    <div class="prof-bubble">
+      <svg class="prof-svg" viewBox="0 0 70 70" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="35" cy="35" rx="25" ry="25" fill="#FDEBD0" stroke="#e0b080" stroke-width="2"/>
+        <circle cx="20" cy="22" r="12" fill="white" stroke="#eee" stroke-width="1"/>
+        <circle cx="35" cy="17" r="11" fill="white" stroke="#eee" stroke-width="1"/>
+        <circle cx="50" cy="22" r="12" fill="white" stroke="#eee" stroke-width="1"/>
+        <circle cx="24" cy="34" r="8" fill="none" stroke="#4A90D9" stroke-width="2.5"/>
+        <circle cx="46" cy="34" r="8" fill="none" stroke="#4A90D9" stroke-width="2.5"/>
+        <circle cx="24" cy="34" r="7" fill="rgba(210,235,255,0.5)"/>
+        <circle cx="46" cy="34" r="7" fill="rgba(210,235,255,0.5)"/>
+        <circle cx="24" cy="34" r="3" fill="#3a5a8a"/>
+        <circle cx="46" cy="34" r="3" fill="#3a5a8a"/>
+        <path d="M25 47 Q35 54 45 47" stroke="#c0704a" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <path d="M22 42 Q27 45 30 42" stroke="#ccc" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <path d="M40 42 Q43 45 48 42" stroke="#ccc" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      </svg>
+      <p>
+        <strong>Slide the Power Slider →</strong> to make numbers grow! <br>
+        If <strong>35 + 65 = 100</strong>, what happens when we multiply by 10?<br>
+        Watch the Magic Mirror! 🪄
+      </p>
+    </div>
+
+    <!-- Pair selector -->
+    <div class="card yellow" style="margin-bottom:16px;">
+      <p style="font-size:0.9rem;font-weight:bold;margin-bottom:10px;text-align:center;">📌 Choose a complement pair to scale:</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;" id="pair-selector">
+        <button class="pairs-filter-btn active" data-a="35" data-b="65" onclick="selectPair(this,35,65)">35 + 65</button>
+        <button class="pairs-filter-btn" data-a="20" data-b="80" onclick="selectPair(this,20,80)">20 + 80</button>
+        <button class="pairs-filter-btn" data-a="48" data-b="52" onclick="selectPair(this,48,52)">48 + 52</button>
+        <button class="pairs-filter-btn" data-a="17" data-b="83" onclick="selectPair(this,17,83)">17 + 83</button>
+      </div>
+    </div>
+
+    <div class="mirror-container">
+      <!-- BASE equation -->
+      <div style="text-align:center;">
+        <p style="font-size:0.8rem;color:var(--ink-lt);font-weight:bold;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">📊 Your Equation</p>
+        <div class="mirror-equation">
+          <div class="eq-box">
+            <div class="num" id="eq-a">35</div>
+            <div class="label">Number A</div>
+          </div>
+          <div class="eq-op">+</div>
+          <div class="eq-box">
+            <div class="num" id="eq-b">65</div>
+            <div class="label">Number B</div>
+          </div>
+          <div class="eq-equals">=</div>
+          <div class="eq-box eq-result-box">
+            <div class="num" id="eq-total">100</div>
+            <div class="label">Total</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Animated arrow -->
+      <div class="mirror-arrow">⬇️</div>
+
+      <!-- Power Slider -->
+      <div class="slider-section">
+        <label>⚡ Power Slider — Choose your multiplier!</label>
+        <input type="range" id="power-slider" min="1" max="10" step="1" value="1" oninput="updateMirror(this.value)">
+        <div class="slider-labels">
+          <span>×1</span><span>×2</span><span>×3</span><span>×4</span><span>×5</span>
+          <span>×6</span><span>×7</span><span>×8</span><span>×9</span><span>×10</span>
+        </div>
+        <div id="multiplier-badge">Multiplier: ×1</div>
+      </div>
+
+      <!-- SCALED equation -->
+      <div style="text-align:center;">
+        <p style="font-size:0.8rem;color:var(--ink-lt);font-weight:bold;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">🪄 After the Magic Mirror</p>
+        <div class="mirror-equation">
+          <div class="eq-box" style="background:var(--orange-lt);border-color:var(--orange);">
+            <div class="num" id="eq-a-scaled" style="color:var(--orange);">35</div>
+            <div class="label">Number A × ?</div>
+          </div>
+          <div class="eq-op">+</div>
+          <div class="eq-box" style="background:var(--orange-lt);border-color:var(--orange);">
+            <div class="num" id="eq-b-scaled" style="color:var(--orange);">65</div>
+            <div class="label">Number B × ?</div>
+          </div>
+          <div class="eq-equals">=</div>
+          <div class="eq-box eq-result-box">
+            <div class="num" id="eq-total-scaled">100</div>
+            <div class="label">New Total</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rule display -->
+      <div class="mirror-rule-box">
+        <p id="mirror-rule-text">⚡ Drag the slider to see what happens! The <strong>complement relationship stays the same</strong> even when numbers get bigger.</p>
+      </div>
+    </div>
+  </div><!-- /slide-2 -->
+
+  <!-- ============================================================
+       SLIDE 3 — FAST MATH GAME
+       ============================================================ -->
+  <div class="slide" id="slide-3">
+    <div class="slide-title">⚡ Fast-Math: Estimate!</div>
+    <div class="slide-subtitle">📖 Learner's Book p. 148 · Rojeeta's Mental Estimates</div>
+
+    <div class="prof-bubble">
+      <svg class="prof-svg" viewBox="0 0 70 70" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="35" cy="35" rx="25" ry="25" fill="#FDEBD0" stroke="#e0b080" stroke-width="2"/>
+        <circle cx="20" cy="22" r="12" fill="white" stroke="#eee" stroke-width="1"/>
+        <circle cx="35" cy="17" r="11" fill="white" stroke="#eee" stroke-width="1"/>
+        <circle cx="50" cy="22" r="12" fill="white" stroke="#eee" stroke-width="1"/>
+        <circle cx="24" cy="34" r="8" fill="none" stroke="#4A90D9" stroke-width="2.5"/>
+        <circle cx="46" cy="34" r="8" fill="none" stroke="#4A90D9" stroke-width="2.5"/>
+        <circle cx="24" cy="34" r="7" fill="rgba(210,235,255,0.5)"/>
+        <circle cx="46" cy="34" r="7" fill="rgba(210,235,255,0.5)"/>
+        <circle cx="24" cy="34" r="3" fill="#3a5a8a"/>
+        <circle cx="46" cy="34" r="3" fill="#3a5a8a"/>
+        <path d="M25 47 Q35 54 45 47" stroke="#c0704a" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <path d="M22 42 Q27 45 30 42" stroke="#ccc" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <path d="M40 42 Q43 45 48 42" stroke="#ccc" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      </svg>
+      <p>
+        <strong>Round to the nearest 100</strong> then find the <strong>estimate!</strong> 💭<br>
+        Tap the bubble with the <strong>closest answer.</strong> Be fast! ⏱️
+      </p>
+    </div>
+
+    <div class="game-area">
+      <div id="game-score-bar">
+        <div class="score-pill qnum">📝 Q <span id="q-num">1</span> / <span id="q-total">5</span></div>
+        <div class="score-pill correct">✅ <span id="score-correct">0</span></div>
+        <div class="score-pill wrong">❌ <span id="score-wrong">0</span></div>
+      </div>
+
+      <div id="timer-bar-wrap"><div id="timer-bar"></div></div>
+
+      <div id="question-display">
+        <div class="q-icon">💭</div>
+        <div class="q-text" id="q-text">980 − 260</div>
+        <div class="q-hint">Round each number to the nearest 100, then estimate!</div>
+      </div>
+
+      <div id="estimate-options">
+        <button class="estimate-btn" id="opt-a" onclick="checkAnswer(0)">
+          <span id="opt-a-val">400</span>
+          <span class="bubble-label">Estimate A</span>
+        </button>
+        <button class="estimate-btn" id="opt-b" onclick="checkAnswer(1)">
+          <span id="opt-b-val">700</span>
+          <span class="bubble-label">Estimate B</span>
+        </button>
+        <button class="estimate-btn" id="opt-c" onclick="checkAnswer(2)">
+          <span id="opt-c-val">500</span>
+          <span class="bubble-label">Estimate C</span>
+        </button>
+      </div>
+
+      <div id="game-feedback"></div>
+      <button id="next-question-btn" onclick="nextQuestion()">Next Question ➡️</button>
+
+      <div id="game-complete">
+        <div class="stars" id="stars-display">⭐⭐⭐</div>
+        <h3 id="complete-title">Amazing Work! 🎉</h3>
+        <p id="complete-msg">You completed all 5 questions!</p>
+        <button id="restart-game-btn" onclick="initGame()">🔄 Play Again</button>
+      </div>
+    </div>
+  </div><!-- /slide-3 -->
+
+  <!-- ============================================================
+       SLIDE 4 — MATHEMATICIAN'S DEBATE
+       ============================================================ -->
+  <div class="slide" id="slide-4">
+    <div class="slide-title">🤔 Mathematician's Debate</div>
+    <div class="slide-subtitle">📖 Learner's Book p. 148 · Arun &amp; Sofia's Problem</div>
+
+    <div class="prof-bubble">
+      <svg class="prof-svg" viewBox="0 0 70 70" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="35" cy="35" rx="25" ry="25" fill="#FDEBD0" stroke="#e0b080" stroke-width="2"/>
+        <circle cx="20" cy="22" r="12" fill="white" stroke="#eee" stroke-width="1"/>
+        <circle cx="35" cy="17" r="11" fill="white" stroke="#eee" stroke-width="1"/>
+        <circle cx="50" cy="22" r="12" fill="white" stroke="#eee" stroke-width="1"/>
+        <circle cx="24" cy="34" r="8" fill="none" stroke="#4A90D9" stroke-width="2.5"/>
+        <circle cx="46" cy="34" r="8" fill="none" stroke="#4A90D9" stroke-width="2.5"/>
+        <circle cx="24" cy="34" r="7" fill="rgba(210,235,255,0.5)"/>
+        <circle cx="46" cy="34" r="7" fill="rgba(210,235,255,0.5)"/>
+        <circle cx="24" cy="34" r="3" fill="#3a5a8a"/>
+        <circle cx="46" cy="34" r="3" fill="#3a5a8a"/>
+        <path d="M25 47 Q35 54 45 47" stroke="#c0704a" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <path d="M22 42 Q27 45 30 42" stroke="#ccc" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <path d="M40 42 Q43 45 48 42" stroke="#ccc" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      </svg>
+      <p>
+        Arun says there are only <strong>a few</strong> pairs that add to make <strong>540.</strong><br>
+        Sofia says there are <strong>many pairs</strong> — especially multiples of 10!<br>
+        Tap the cards to <strong>reveal the pairs</strong> and see who is right! 👇
+      </p>
+    </div>
+
+    <div class="debate-header">
+      <div class="character-card arun">
+        <div class="char-avatar">👦</div>
+        <div>
+          <div class="char-name">🔵 Arun</div>
+          <div class="char-quote">"I don't think there are many pairs that add up to 540. It's a big number!"</div>
+        </div>
+      </div>
+      <div class="character-card sofia">
+        <div class="char-avatar">👧</div>
+        <div>
+          <div class="char-name">🟠 Sofia</div>
+          <div class="char-quote">"I think there are lots of pairs! Especially if we use multiples of 10. Watch me prove it!"</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pairs-challenge">
+      <h3>🎯 Find pairs that add to make...</h3>
+      <div class="total-num">540</div>
+      <p>Both numbers must be <strong>multiples of 10</strong> (like 10, 20, 30...)</p>
+    </div>
+
+    <div id="pairs-controls">
+      <button class="pairs-filter-btn active" onclick="filterPairs('all', this)">All Pairs</button>
+      <button class="pairs-filter-btn" onclick="filterPairs('small', this)">Small (0–100)</button>
+      <button class="pairs-filter-btn" onclick="filterPairs('medium', this)">Medium (110–270)</button>
+      <button class="pairs-filter-btn" onclick="revealAllPairs()">👁 Reveal All</button>
+    </div>
+
+    <div id="pairs-summary">
+      <h4>🔍 Pairs Discovered</h4>
+      <span id="reveal-count">0 / 28 pairs revealed</span>
+      <p id="sofia-verdict">Tap the cards below to reveal each pair! Can you find them all?</p>
+    </div>
+
+    <div id="pairs-grid"></div>
+
+  </div><!-- /slide-4 -->
+
+</div><!-- /content-area -->
+
+<!-- ============================================================
+     STICKY BOTTOM NAVIGATION
+     ============================================================ -->
+<nav id="nav-bar">
+  <button class="nav-btn" id="btn-home"  onclick="goToSlide(0)">🏠 Home</button>
+  <button class="nav-btn" id="btn-prev"  onclick="goToPrev()">❮ Prev</button>
+  <button class="nav-btn" id="btn-next"  onclick="goToNext()">Next ❯</button>
+  <button class="nav-btn" id="btn-reset" onclick="resetCurrentSlide()">🔄 Reset</button>
+</nav>
+
+<!-- ============================================================
+     GLOSSARY MODAL
+     ============================================================ -->
+<div id="glossary-overlay" onclick="handleOverlayClick(event)">
+  <div id="glossary-modal">
+    <div class="modal-header">
+      <h2>📖 Word Glossary</h2>
+      <button id="close-glossary" onclick="closeGlossary()">✕</button>
+    </div>
+    <div class="glossary-body">
+
+      <div class="glossary-entry">
+        <div class="glos-icon blue">🧩</div>
+        <div class="glos-content">
+          <h3>Complement</h3>
+          <p>The number you need to <strong>add</strong> to reach a total. Like puzzle pieces — one piece + its complement = the whole puzzle!</p>
+          <p class="glos-example">35 + <span style="color:var(--blue-dk);">65</span> = 100 &nbsp;→&nbsp; 65 is the complement of 35</p>
+        </div>
+      </div>
+
+      <div class="glossary-entry">
+        <div class="glos-icon yellow">💭</div>
+        <div class="glos-content">
+          <h3>Estimate</h3>
+          <p>A <strong>close guess</strong> — not the exact answer, but a good one! Round numbers to make it easier to calculate in your head.</p>
+          <p class="glos-example">980 − 260 &nbsp;≈&nbsp; <span style="color:var(--orange);">1000 − 300 = 700</span></p>
+        </div>
+      </div>
+
+      <div class="glossary-entry">
+        <div class="glos-icon orange">✖️</div>
+        <div class="glos-content">
+          <h3>Multiple</h3>
+          <p>Numbers in a times-table. Multiples of 10 are: 10, 20, 30, 40, 50… They always end in zero!</p>
+          <p class="glos-example">10 × 1 = 10 &nbsp;·&nbsp; 10 × 5 = 50 &nbsp;·&nbsp; 10 × 54 = 540</p>
+        </div>
+      </div>
+
+      <div class="glossary-entry">
+        <div class="glos-icon green">📈</div>
+        <div class="glos-content">
+          <h3>Scale</h3>
+          <p>To make all numbers <strong>bigger or smaller</strong> by the same amount. If you scale 35 + 65 = 100 by ×10, you get 350 + 650 = 1000!</p>
+          <p class="glos-example">×10 means multiply each number by 10</p>
+        </div>
+      </div>
+
+      <div class="glossary-entry">
+        <div class="glos-icon blue" style="background:var(--orange-lt);">🔢</div>
+        <div class="glos-content">
+          <h3>Round</h3>
+          <p>To change a number to the nearest 10 or 100. Look at the last digit — if it's 5 or more, round UP! If it's 4 or less, round DOWN.</p>
+          <p class="glos-example">980 rounds to <span style="color:var(--orange);">1000</span> &nbsp;·&nbsp; 260 rounds to <span style="color:var(--orange);">300</span></p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     JAVASCRIPT
+     ============================================================ -->
+<script>
+/* ============================================================
+   NAVIGATION STATE
+   ============================================================ */
+let currentSlide = 0;
+const TOTAL_SLIDES = 4; // 0 = home, 1-4 = activities
+const slideIds = ['slide-home', 'slide-1', 'slide-2', 'slide-3', 'slide-4'];
+const slideNames = ['HOME', 'ACTIVITY 1', 'ACTIVITY 2', 'ACTIVITY 3', 'ACTIVITY 4'];
+
+function goToSlide(n) {
+  // Deactivate all
+  slideIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('active');
+  });
+  currentSlide = Math.max(0, Math.min(TOTAL_SLIDES, n));
+  const target = document.getElementById(slideIds[currentSlide]);
+  if (target) target.classList.add('active');
+  // Scroll to top
+  document.getElementById('content-area').scrollTo({ top: 0, behavior: 'smooth' });
+  // Update nav
+  document.getElementById('slide-indicator').textContent = slideNames[currentSlide];
+  document.getElementById('btn-prev').disabled = (currentSlide === 0);
+  document.getElementById('btn-next').disabled = (currentSlide === TOTAL_SLIDES);
+  // Initialise slide if needed
+  if (currentSlide === 3 && !gameInitialised) initGame();
+  if (currentSlide === 4) initPairsGrid();
+}
+
+function goToNext() { goToSlide(currentSlide + 1); }
+function goToPrev() { goToSlide(currentSlide - 1); }
+
+function resetCurrentSlide() {
+  switch(currentSlide) {
+    case 1: clearGrid(); break;
+    case 2: resetMirror(); break;
+    case 3: initGame(); break;
+    case 4: resetPairs(); break;
+    default: break;
+  }
+}
+
+/* ============================================================
+   GLOSSARY
+   ============================================================ */
+function openGlossary()  { document.getElementById('glossary-overlay').classList.add('open'); }
+function closeGlossary() { document.getElementById('glossary-overlay').classList.remove('open'); }
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('glossary-overlay')) closeGlossary();
+}
+
+/* ============================================================
+   SLIDE 1 — 100-SQUARE GRID
+   ============================================================ */
+let gridState = new Array(100).fill(false);
+
+function buildGrid() {
+  const grid = document.getElementById('hundred-grid');
+  grid.innerHTML = '';
+  for (let i = 1; i <= 100; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'grid-cell';
+    cell.id = 'cell-' + i;
+    cell.textContent = i;
+    cell.addEventListener('click', () => toggleCell(i - 1));
+    // Touch support: prevent drag-scrolling from firing clicks incorrectly
+    cell.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      toggleCell(i - 1);
+    });
+    grid.appendChild(cell);
+  }
+  updateGridCounter();
+}
+
+function toggleCell(idx) {
+  const n = idx + 1; // 1-based cell number
+  const filledCount = gridState.filter(Boolean).length;
+  // Tapping the exact last filled cell clears all (toggle off); otherwise fill up to n
+  const targetFill = (filledCount === n) ? 0 : n;
+  fillExact(targetFill);
+}
+
+function updateGridCounter() {
+  const filled = gridState.filter(Boolean).length;
+  const remaining = 100 - filled;
+  document.getElementById('filled-count').textContent = filled;
+  document.getElementById('remain-count').textContent = remaining;
+  const disp = document.getElementById('grid-complement-display');
+  if (filled === 0) {
+    disp.textContent = '';
+  } else {
+    disp.textContent = `✨  ${filled}  +  ${remaining}  =  100`;
+    // Color highlight
+    disp.style.color = remaining === 0 ? 'var(--green)' : 'var(--blue-dk)';
+  }
+}
+
+function fillExact(n) {
+  // Clear first, then fill first n cells
+  gridState = new Array(100).fill(false);
+  for (let i = 0; i < 100; i++) {
+    const cell = document.getElementById('cell-' + (i + 1));
+    cell.classList.remove('filled', 'filled-orange');
+    if (i < n) {
+      gridState[i] = true;
+      cell.classList.add('filled');
+    }
+  }
+  updateGridCounter();
+}
+
+function clearGrid() {
+  gridState = new Array(100).fill(false);
+  for (let i = 1; i <= 100; i++) {
+    const cell = document.getElementById('cell-' + i);
+    cell.classList.remove('filled', 'filled-orange');
+  }
+  updateGridCounter();
+}
+
+buildGrid();
+
+/* ============================================================
+   SLIDE 2 — MAGIC MIRROR
+   ============================================================ */
+let mirrorBaseA = 35, mirrorBaseB = 65;
+
+function selectPair(btn, a, b) {
+  document.querySelectorAll('#pair-selector .pairs-filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  mirrorBaseA = a;
+  mirrorBaseB = b;
+  const slider = document.getElementById('power-slider');
+  slider.value = 1;
+  updateMirror(1);
+}
+
+function updateMirror(val) {
+  const n = parseInt(val);
+  document.getElementById('multiplier-badge').textContent = 'Multiplier: ×' + n;
+  // Scaled values
+  const sA = mirrorBaseA * n;
+  const sB = mirrorBaseB * n;
+  const sT = (mirrorBaseA + mirrorBaseB) * n;
+  // Base equation (always stays the same)
+  document.getElementById('eq-a').textContent = mirrorBaseA;
+  document.getElementById('eq-b').textContent = mirrorBaseB;
+  document.getElementById('eq-total').textContent = mirrorBaseA + mirrorBaseB;
+  // Scaled
+  document.getElementById('eq-a-scaled').textContent = sA;
+  document.getElementById('eq-b-scaled').textContent = sB;
+  document.getElementById('eq-total-scaled').textContent = sT;
+  // Rule text
+  const ruleEl = document.getElementById('mirror-rule-text');
+  if (n === 1) {
+    ruleEl.innerHTML = `⚡ Drag the slider to see what happens! The <strong>complement relationship stays the same</strong> even when numbers get bigger.`;
+  } else {
+    ruleEl.innerHTML = `🪄 <strong>${mirrorBaseA} + ${mirrorBaseB} = ${mirrorBaseA+mirrorBaseB}</strong> scaled by ×${n} gives us <strong>${sA} + ${sB} = ${sT}</strong>. The complement is still the same!`;
+  }
+}
+
+function resetMirror() {
+  document.getElementById('power-slider').value = 1;
+  document.querySelectorAll('#pair-selector .pairs-filter-btn').forEach((b,i) => b.classList.toggle('active', i===0));
+  mirrorBaseA = 35; mirrorBaseB = 65;
+  updateMirror(1);
+}
+
+// Init
+updateMirror(1);
+
+/* ============================================================
+   SLIDE 3 — FAST-MATH GAME
+   ============================================================ */
+const QUESTIONS = [
+  { text: '980 − 260', hint: 'Round each number to the nearest 100', options: [400, 700, 500], correct: 1, explanation: '980 ≈ 1000, 260 ≈ 300, so 1000 − 300 = 700 ✅' },
+  { text: '470 + 290', hint: 'Round each number to the nearest 100', options: [600, 900, 800], correct: 2, explanation: '470 ≈ 500, 290 ≈ 300, so 500 + 300 = 800 ✅' },
+  { text: '820 − 380', hint: 'Round each number to the nearest 100', options: [300, 400, 700], correct: 1, explanation: '820 ≈ 800, 380 ≈ 400, so 800 − 400 = 400 ✅' },
+  { text: '350 + 490', hint: 'Round each number to the nearest 100', options: [700, 600, 900], correct: 2, explanation: '350 ≈ 400, 490 ≈ 500, so 400 + 500 = 900 ✅' },
+  { text: '780 − 220', hint: 'Round each number to the nearest 100', options: [400, 700, 600], correct: 2, explanation: '780 ≈ 800, 220 ≈ 200, so 800 − 200 = 600 ✅' },
+];
+
+let gameInitialised = false;
+let currentQ = 0;
+let scoreCorrect = 0;
+let scoreWrong = 0;
+let timerInterval = null;
+let timerSeconds = 0;
+const TIMER_MAX = 15;
+let answered = false;
+
+function initGame() {
+  gameInitialised = true;
+  currentQ = 0;
+  scoreCorrect = 0;
+  scoreWrong = 0;
+  answered = false;
+  clearInterval(timerInterval);
+  document.getElementById('game-complete').style.display = 'none';
+  document.getElementById('question-display').style.display = '';
+  document.getElementById('estimate-options').style.display = '';
+  document.getElementById('timer-bar-wrap').style.display = '';
+  document.getElementById('game-score-bar').style.display = '';
+  document.getElementById('game-feedback').textContent = '';
+  document.getElementById('game-feedback').className = '';
+  document.getElementById('next-question-btn').style.display = 'none';
+  document.getElementById('score-correct').textContent = 0;
+  document.getElementById('score-wrong').textContent = 0;
+  document.getElementById('q-total').textContent = QUESTIONS.length;
+  loadQuestion();
+}
+
+function loadQuestion() {
+  answered = false;
+  const q = QUESTIONS[currentQ];
+  document.getElementById('q-num').textContent = currentQ + 1;
+  document.getElementById('q-text').textContent = q.text;
+  document.getElementById('game-feedback').textContent = '';
+  document.getElementById('game-feedback').className = '';
+  document.getElementById('next-question-btn').style.display = 'none';
+
+  const optBtns = ['opt-a', 'opt-b', 'opt-c'];
+  const valIds  = ['opt-a-val', 'opt-b-val', 'opt-c-val'];
+  for (let i = 0; i < 3; i++) {
+    const btn = document.getElementById(optBtns[i]);
+    btn.className = 'estimate-btn';
+    btn.disabled = false;
+    document.getElementById(valIds[i]).textContent = q.options[i];
+  }
+
+  startTimer();
+}
+
+function startTimer() {
+  clearInterval(timerInterval);
+  timerSeconds = TIMER_MAX;
+  document.getElementById('timer-bar').style.width = '100%';
+  timerInterval = setInterval(() => {
+    timerSeconds--;
+    const pct = (timerSeconds / TIMER_MAX) * 100;
+    document.getElementById('timer-bar').style.width = pct + '%';
+    if (timerSeconds <= 0) {
+      clearInterval(timerInterval);
+      if (!answered) timeUp();
+    }
+  }, 1000);
+}
+
+function checkAnswer(idx) {
+  if (answered) return;
+  answered = true;
+  clearInterval(timerInterval);
+  const q = QUESTIONS[currentQ];
+  const optBtns = ['opt-a', 'opt-b', 'opt-c'];
+  const fb = document.getElementById('game-feedback');
+
+  // Disable all
+  optBtns.forEach(id => document.getElementById(id).disabled = true);
+
+  if (idx === q.correct) {
+    document.getElementById(optBtns[idx]).classList.add('correct-ans');
+    scoreCorrect++;
+    document.getElementById('score-correct').textContent = scoreCorrect;
+    fb.textContent = '🎉 Brilliant! ' + q.explanation;
+    fb.className = 'show-correct';
+  } else {
+    document.getElementById(optBtns[idx]).classList.add('wrong-ans');
+    document.getElementById(optBtns[q.correct]).classList.add('reveal-ans');
+    scoreWrong++;
+    document.getElementById('score-wrong').textContent = scoreWrong;
+    fb.textContent = '🤔 Not quite! ' + q.explanation;
+    fb.className = 'show-wrong';
+  }
+
+  if (currentQ < QUESTIONS.length - 1) {
+    document.getElementById('next-question-btn').style.display = 'block';
+  } else {
+    setTimeout(showGameComplete, 1200);
+  }
+}
+
+function timeUp() {
+  if (answered) return;
+  answered = true;
+  const q = QUESTIONS[currentQ];
+  const optBtns = ['opt-a', 'opt-b', 'opt-c'];
+  optBtns.forEach(id => document.getElementById(id).disabled = true);
+  document.getElementById(optBtns[q.correct]).classList.add('reveal-ans');
+  scoreWrong++;
+  document.getElementById('score-wrong').textContent = scoreWrong;
+  const fb = document.getElementById('game-feedback');
+  fb.textContent = '⏱️ Time\'s up! ' + q.explanation;
+  fb.className = 'show-time';
+  if (currentQ < QUESTIONS.length - 1) {
+    document.getElementById('next-question-btn').style.display = 'block';
+  } else {
+    setTimeout(showGameComplete, 1200);
+  }
+}
+
+function nextQuestion() {
+  currentQ++;
+  loadQuestion();
+}
+
+function showGameComplete() {
+  document.getElementById('game-complete').style.display = 'block';
+  document.getElementById('question-display').style.display = 'none';
+  document.getElementById('estimate-options').style.display = 'none';
+  document.getElementById('timer-bar-wrap').style.display = 'none';
+  document.getElementById('next-question-btn').style.display = 'none';
+  document.getElementById('game-feedback').className = '';
+
+  const total = QUESTIONS.length;
+  const pct = scoreCorrect / total;
+  let stars = '⭐';
+  let title = 'Keep Practising! 💪';
+  let msg = '';
+  if (pct >= 0.8) { stars = '⭐⭐⭐'; title = 'Amazing Work! 🎉'; }
+  else if (pct >= 0.6) { stars = '⭐⭐'; title = 'Good Job! 👍'; }
+  msg = `You got ${scoreCorrect} out of ${total} correct!`;
+  document.getElementById('stars-display').textContent = stars;
+  document.getElementById('complete-title').textContent = title;
+  document.getElementById('complete-msg').textContent = msg;
+}
+
+/* ============================================================
+   SLIDE 4 — PAIRS GRID
+   ============================================================ */
+// Multiples of 10 from 0 to 540 that sum to 540
+// (0,540),(10,530),...,(270,270) = 28 pairs
+let pairsData = [];
+let pairsFilter = 'all';
+let revealedPairs = new Set();
+
+function buildPairsData() {
+  pairsData = [];
+  for (let a = 0; a <= 270; a += 10) {
+    const b = 540 - a;
+    pairsData.push({ a, b, id: a / 10 });
+  }
+}
+
+function initPairsGrid() {
+  if (pairsData.length === 0) buildPairsData();
+  renderPairsGrid();
+}
+
+function filterPairs(f, btn) {
+  pairsFilter = f;
+  document.querySelectorAll('#pairs-controls .pairs-filter-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderPairsGrid();
+}
+
+function renderPairsGrid() {
+  const grid = document.getElementById('pairs-grid');
+  grid.innerHTML = '';
+  const filtered = pairsData.filter(p => {
+    if (pairsFilter === 'small')  return p.a <= 100;
+    if (pairsFilter === 'medium') return p.a >= 110 && p.a <= 270;
+    return true;
+  });
+  filtered.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'pair-card' + (revealedPairs.has(p.id) ? ' revealed' : '');
+    card.id = 'pair-card-' + p.id;
+    card.innerHTML = `
+      <div class="pair-front">Pair #${p.id + 1}</div>
+      <div class="pair-equation">${p.a} + ${p.b} = 540</div>
+      <div class="pair-tap">${revealedPairs.has(p.id) ? '✅ Revealed!' : '👆 Tap to reveal'}</div>
+    `;
+    card.addEventListener('click', () => revealPair(p.id));
+    card.addEventListener('touchend', (e) => { e.preventDefault(); revealPair(p.id); });
+    grid.appendChild(card);
+  });
+  updatePairsSummary();
+}
+
+function revealPair(id) {
+  revealedPairs.add(id);
+  const card = document.getElementById('pair-card-' + id);
+  if (card) {
+    card.classList.add('revealed');
+    card.querySelector('.pair-tap').textContent = '✅ Revealed!';
+  }
+  updatePairsSummary();
+}
+
+function revealAllPairs() {
+  pairsData.forEach(p => revealedPairs.add(p.id));
+  document.querySelectorAll('#pairs-controls .pairs-filter-btn').forEach((b,i) => b.classList.toggle('active', i===3));
+  pairsFilter = 'all';
+  renderPairsGrid();
+}
+
+function resetPairs() {
+  revealedPairs.clear();
+  pairsFilter = 'all';
+  document.querySelectorAll('#pairs-controls .pairs-filter-btn').forEach((b,i) => b.classList.toggle('active', i===0));
+  renderPairsGrid();
+}
+
+function updatePairsSummary() {
+  const total = pairsData.length;
+  const count = revealedPairs.size;
+  document.getElementById('reveal-count').textContent = count + ' / ' + total + ' pairs revealed';
+  const verdict = document.getElementById('sofia-verdict');
+  if (count === total) {
+    verdict.innerHTML = `🎉 <strong>Sofia was right!</strong> There are <strong>${total} pairs</strong> of multiples of 10 that add to make 540. That's a lot! Arun was surprised. 😄`;
+    verdict.style.color = 'var(--green)';
+  } else if (count >= 14) {
+    verdict.innerHTML = `🤔 You found ${count} pairs so far... keep going! There are ${total} in total. Sofia seems to be right!`;
+    verdict.style.color = 'var(--orange)';
+  } else {
+    verdict.textContent = 'Tap the cards below to reveal each pair! Can you find them all?';
+    verdict.style.color = 'var(--ink)';
+  }
+}
+
+// Initialise first state
+goToSlide(0);
+</script>
+</body>
+</html>
